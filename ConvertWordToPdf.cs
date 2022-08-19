@@ -31,6 +31,13 @@ namespace memadk.Function
                     var pdfName = name.Replace(".docx", ".pdf");
                     var blobClient = new BlobContainerClient(Connection, "documents");
                     var blob = blobClient.GetBlobClient(pdfName);
+                    if(await blob.ExistsAsync())
+                    {
+                        log.LogInformation($"{pdfName} already exists, renaming...");
+                        pdfName = pdfName.Replace(".pdf", $"-{DateTime.Now.ToString("yyyyMMddHHmmss")}.pdf");
+                        blob = blobClient.GetBlobClient(pdfName);
+                        log.LogInformation($"New name: {pdfName}");
+                    }
                     await blob.UploadAsync(stream);
                 }
 
