@@ -6,6 +6,15 @@ using Microsoft.Azure.WebJobs.Host;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 using GemBox.Document;
+using AzureFunctions.Extensions.Swashbuckle.Attribute;
+using System.Net.Http;
+using Microsoft.Azure.WebJobs.Extensions.Http;
+using AzureFunctions.Extensions.Swashbuckle;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
+using ConvertToPdf.models;
+using System.Net;
+using Newtonsoft.Json;
 
 namespace memadk.Function
 {
@@ -47,6 +56,38 @@ namespace memadk.Function
                 log.LogInformation($"{name} is not a word document");
             }
             
+        }
+
+        [FunctionName("test-save")]
+        [ProducesResponseType(typeof(TestResponse), (int) HttpStatusCode.OK)]
+        public static async Task <IActionResult> TestSave(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)]
+            [RequestBodyType(typeof(TestRequest), "request")] HttpRequest req, ILogger log) {
+            log.LogInformation("C# HTTP trigger function processed a request.");
+            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+            TestRequest data = JsonConvert.DeserializeObject <TestRequest> (requestBody);
+            var responseMessage = new TestResponse {
+                Id = Guid.NewGuid(), TestData = data
+            };
+            return new OkObjectResult(responseMessage);
+        }
+
+        [SwaggerIgnore]
+        [FunctionName("Swagger")]
+        public static Task <HttpResponseMessage> Swagger(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "swagger/json")] HttpRequestMessage req,
+            [SwashBuckleClient] ISwashBuckleClient swasBuckleClient) 
+        {
+            return Task.FromResult(swasBuckleClient.CreateSwaggerJsonDocumentResponse(req));
+        }
+        
+        [SwaggerIgnore]
+        [FunctionName("SwaggerUI")]
+        public static Task < HttpResponseMessage > SwaggerUI(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "swagger/ui")] HttpRequestMessage req,
+            [SwashBuckleClient] ISwashBuckleClient swasBuckleClient) 
+        {
+            return Task.FromResult(swasBuckleClient.CreateSwaggerUIResponse(req, "swagger/json"));
         }
     }
 }

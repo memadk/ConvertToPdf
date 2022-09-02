@@ -5,6 +5,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Azure.Storage.Blobs" Version="12.13.0" />
+    <PackageReference Include="AzureExtensions.Swashbuckle" Version="3.3.2" />
     <PackageReference Include="GemBox.Document" Version="35.0.1076" />
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.Storage" Version="4.0.5" />
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="4.1.1" />
